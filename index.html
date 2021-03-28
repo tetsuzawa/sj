@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>喋ってみなよ</title>
+</head>
+<body>
+
+<label id="latency-label">遅延[ms]を入力してね（200~300がおすすめ）
+    <br>
+    <input id="latency" type="number" value="200">
+</label>
+<br>
+<button id="start">再生開始！</button>
+
+<br>
+<br>
+<br>
+
+<p>スタートしたら<a href="https://www.aozora.gr.jp/cards/000329/files/18376_12100.html">桃太郎</a>読んでみ</p>
+
+<br>
+<br>
+<br>
+
+<p>このWebアプリは<a href="https://sites.google.com/site/qurihara/home/speechjammer">スピーチジャマー</a>から着想を得ています。</p>
+
+
+<script>
+    const startButton = document.getElementById('start');
+    window.audioctx = new (window.AudioContext || window.webkitAudioContext)();
+    startButton.addEventListener('click', async () => {
+        window.audioctx.close();
+
+        const latency = document.getElementById('latency').value;
+        console.log('latency is: ', latency, '[ms]');
+        console.log(latency / 1000);
+        const localStream = await navigator.mediaDevices
+            .getUserMedia({
+                    audio: {
+                        noiseSuppression: true,
+                    },
+                },
+            )
+            .catch(console.error);
+
+        const audioctx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = new MediaStreamAudioSourceNode(audioctx, {mediaStream: localStream});
+        const delay = new DelayNode(audioctx, {delayTime: latency / 1000});
+        source.connect(delay).connect(audioctx.destination);
+        window.audioctx = audioctx;
+    });
+</script>
+</body>
+</html>
